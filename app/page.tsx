@@ -134,9 +134,10 @@ const loadItems = async () => {
     });
 
     if (res.success) {
-      setStores((prev) => prev.filter((s) => s.id !== storeId));
-      setItems((prev) => prev.filter((i) => i.store_id !== storeId));
-    }
+       setStores((prev: any[]) => prev.filter((s: any) => s.id !== storeId));
+       ((prev: any[]) => prev.filter((i: any) => i.store_id !== storeId));
+}
+
   };
 
   // ADD ITEM
