@@ -14,8 +14,8 @@ export default function Page() {
   const [loginCode, setLoginCode] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
 
-  const [items, setItems] = useState([]);
-  const [stores, setStores] = useState([]);
+  const [items, setItems] = useState<any[]>([]);
+  const [stores, setStores] = useState<any[]>([]);
 
   const [theme, setTheme] = useState("dark");
 
@@ -53,56 +53,53 @@ export default function Page() {
   };
 
   // --------------------------------------
-  // FUNCTIONS (CORRECT ORDER)
+  // FUNCTIONS
   // --------------------------------------
 
- // LOAD ITEMS (FIXED)
-const loadItems = async () => {
-  const res = await postJSON("/api/getList", { family_code: familyCode });
+  // LOAD ITEMS
+  const loadItems = async () => {
+    const res = await postJSON("/api/getList", { family_code: familyCode });
 
-   const cloned = (res.items || []).map((x: any) => ({
-    ...x,
-    is_checked: x.is_checked === true || x.is_checked === "true",
-    store_id: x.store_id ? String(x.store_id) : null,
-  }));
+    const cloned = (res.items || []).map((x: any) => ({
+      ...x,
+      is_checked: x.is_checked === true || x.is_checked === "true",
+      store_id: x.store_id ? String(x.store_id) : null,
+    }));
 
-  setItems(cloned);
-};
-
+    setItems(cloned);
+  };
 
   // LOAD STORES
   const loadStores = async () => {
     const res = await postJSON("/api/getStores", { family_code: familyCode });
 
-    const cloned = res.stores.map((x: any) => ({
-  ...x,
-  id: String(x.id),
-}));
-
+    const cloned = (res.stores || []).map((x: any) => ({
+      ...x,
+      id: String(x.id),
+    }));
 
     setStores(cloned);
   };
 
   // LOGIN
   const handleLogin = async () => {
-  const res = await postJSON("/api/loginFamily", {
-    family_code: loginCode,
-    family_password: loginPassword,
-  });
+    const res = await postJSON("/api/loginFamily", {
+      family_code: loginCode,
+      family_password: loginPassword,
+    });
 
-  if (!res.success) {
-    alert(res.message);
-    return;
-  }
+    if (!res.success) {
+      alert(res.message);
+      return;
+    }
 
-  localStorage.setItem("family_code", loginCode);
-  localStorage.setItem("family_password", loginPassword);
-  setFamilyCode(loginCode);
+    localStorage.setItem("family_code", loginCode);
+    localStorage.setItem("family_password", loginPassword);
+    setFamilyCode(loginCode);
 
-  // ⭐ ΕΔΩ ΠΑΕΙ — FRONTEND FIX
-  loadItems();
-  loadStores();
-};
+    loadItems();
+    loadStores();
+  };
 
   // LOGOUT
   const logoutFamily = () => {
@@ -116,10 +113,12 @@ const loadItems = async () => {
   // ADD STORE
   const addStore = async () => {
     if (!newStoreName) return;
+
     const res = await postJSON("/api/addStore", {
       name: newStoreName,
       family_code: familyCode,
     });
+
     if (res.success) {
       setNewStoreName("");
       loadStores();
@@ -134,10 +133,11 @@ const loadItems = async () => {
     });
 
     if (res.success) {
-       setStores((prev: any[]) => prev.filter((s: any) => s.id !== storeId));
-       ((prev: any[]) => prev.filter((i: any) => i.store_id !== storeId));
-}
-
+      setStores((prev: any[]) => prev.filter((s: any) => s.id !== storeId));
+      setItems((prev: any[]) =>
+        prev.filter((i: any) => i.store_id !== storeId)
+      );
+    }
   };
 
   // ADD ITEM
@@ -159,60 +159,57 @@ const loadItems = async () => {
     }
   };
 
-  // GOT IT (INSTANT UI UPDATE)
-const toggleGotIt = async (item: any) => {
-  if (!familyCode) return;
+  // GOT IT
+  const toggleGotIt = async (item: any) => {
+    if (!familyCode) return;
 
-  // 1. Instant UI update
-  setItems((prev) =>
-    prev.map((x) =>
-      x.id === item.id
-        ? { ...x, is_checked: !x.is_checked }
-        : x
-    )
-  );
+    setItems((prev: any[]) =>
+      prev.map((x: any) =>
+        x.id === item.id ? { ...x, is_checked: !x.is_checked } : x
+      )
+    );
 
-  // 2. Update database
-  await postJSON("/api/toggleGotIt", {
-    id: item.id,
-    family_code: familyCode,
-  });
-};
-
-
+    await postJSON("/api/toggleGotIt", {
+      id: item.id,
+      family_code: familyCode,
+    });
+  };
 
   // EDIT ITEM
   const editItem = async (item: any) => {
     const newName = prompt("New name:", item.name);
     if (!newName) return;
+
     const res = await postJSON("/api/editItem", {
       id: item.id,
       name: newName,
       family_code: familyCode,
     });
+
     if (res.success) loadItems();
   };
 
   // DELETE ITEM
   const deleteItem = async (item: any) => {
     if (!confirm(`Delete "${item.name}"?`)) return;
+
     const res = await postJSON("/api/deleteItem", {
       id: item.id,
       family_code: familyCode,
     });
+
     if (res.success) loadItems();
   };
 
   // --------------------------------------
-  // useEffect (AFTER FUNCTIONS)
+  // EFFECTS
   // --------------------------------------
   useEffect(() => {
-  const code = localStorage.getItem("family_code");
-  if (code) {
-    setFamilyCode(code);
-  }
-}, []);
-
+    const code = localStorage.getItem("family_code");
+    if (code) {
+      setFamilyCode(code);
+    }
+  }, []);
 
   useEffect(() => {
     document.body.classList.remove("dark", "light-dark");
@@ -355,7 +352,7 @@ const toggleGotIt = async (item: any) => {
                 onChange={(e) => setNewStoreSelected(e.target.value)}
               >
                 <option value="">{t.select_store}</option>
-                {stores.map((s) => (
+                {stores.map((s: any) => (
                   <option key={s.id} value={String(s.id)}>
                     {s.name}
                   </option>
@@ -378,7 +375,7 @@ const toggleGotIt = async (item: any) => {
               </h2>
 
               <div className="space-y-2 max-h-60 overflow-y-auto">
-                {stores.map((s) => (
+                {stores.map((s: any) => (
                   <div
                     key={s.id}
                     className="flex items-center justify-between p-2 border rounded-lg dark:border-slate-700 text-sm"
@@ -436,7 +433,7 @@ const toggleGotIt = async (item: any) => {
                 }}
               >
                 <option value="">{t.select_store}</option>
-                {stores.map((s) => (
+                {stores.map((s: any) => (
                   <option key={s.id} value={s.id}>
                     {s.name}
                   </option>
@@ -451,87 +448,84 @@ const toggleGotIt = async (item: any) => {
         </div>
 
         {/* ITEMS */}
-<div className="space-y-3">
-  <h2 className="section-title text-purple-700 dark:text-purple-300">
-    List
-  </h2>
+        <div className="space-y-3">
+          <h2 className="section-title text-purple-700 dark:text-purple-300">
+            List
+          </h2>
 
-  <ul className="space-y-3">
-    {items.map((i) => {
-      
-      console.log("🔥 RENDER ITEM:", i);
+          <ul className="space-y-3">
+            {items.map((i: any) => {
+              console.log("🔥 RENDER ITEM:", i);
 
-      const storeName = stores.find(
-        (s) => String(s.id) === String(i.store_id)
-      )?.name;
+              const storeName = stores.find(
+                (s: any) => String(s.id) === String(i.store_id)
+              )?.name;
 
-      return (
-        <li
-          key={i.id}
-          className={`card list-item flex items-center justify-between transition-all pointer-events-auto ${
-            i.is_checked && "bg-green-100 dark:bg-green-900"
-          }`}
-        >
-          <div className="flex flex-col">
+              return (
+                <li
+                  key={i.id}
+                  className={`card list-item flex items-center justify-between transition-all pointer-events-auto ${
+                    i.is_checked && "bg-green-100 dark:bg-green-900"
+                  }`}
+                >
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-2">
+                      {i.is_checked && (
+                        <span className="text-green-600 font-bold">✔</span>
+                      )}
 
-            {/* ⭐⭐ ΕΔΩ ΜΠΑΙΝΕΙ ΤΟ CHECK ✔⭐⭐ */}
-            <div className="flex items-center gap-2">
-              {i.is_checked && (
-                <span className="text-green-600 font-bold">✔</span>
-              )}
+                      <span
+                        className={`text-sm font-medium ${
+                          i.is_checked
+                            ? "line-through text-green-900 dark:text-green-200"
+                            : ""
+                        }`}
+                      >
+                        {i.name} (x{i.quantity})
+                      </span>
+                    </div>
 
-              <span
-                className={`text-sm font-medium ${
-                  i.is_checked
-                    ? "line-through text-green-900 dark:text-green-200"
-                    : ""
-                }`}
-              >
-                {i.name} (x{i.quantity})
-              </span>
-            </div>
-            {/* ⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐ */}
+                    {storeName && (
+                      <span
+                        className={`store-label text-xs mt-1 ${
+                          i.is_checked
+                            ? "text-green-700 dark:text-green-300"
+                            : ""
+                        }`}
+                      >
+                        {storeName}
+                      </span>
+                    )}
+                  </div>
 
-            {storeName && (
-              <span
-                className={`store-label text-xs mt-1 ${
-                  i.is_checked ? "text-green-700 dark:text-green-300" : ""
-                }`}
-              >
-                {storeName}
-              </span>
-            )}
-          </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => toggleGotIt(i)}
+                      className="btn btn-green"
+                    >
+                      {t.got_it}
+                    </button>
 
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => toggleGotIt(i)}
-              className="btn btn-green"
-            >
-              {t.got_it}
-            </button>
+                    <button
+                      onClick={() => editItem(i)}
+                      className="btn btn-primary"
+                    >
+                      {t.edit}
+                    </button>
 
-            <button
-              onClick={() => editItem(i)}
-              className="btn btn-primary"
-            >
-              {t.edit}
-            </button>
-
-            <button
-              onClick={() => deleteItem(i)}
-              className="btn btn-danger"
-            >
-              {t.delete}
-            </button>
-          </div>
-        </li>
-      );
-    })}
-  </ul>
-</div>
-
+                    <button
+                      onClick={() => deleteItem(i)}
+                      className="btn btn-danger"
+                    >
+                      {t.delete}
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
 
         {/* FOOTER */}
         <footer className="pt-6 text-center space-y-1 text-[10px] text-gray-500 dark:text-gray-300">
