@@ -57,11 +57,10 @@ export default function Page() {
   // --------------------------------------
 
  // LOAD ITEMS (FIXED)
-// LOAD ITEMS (FIXED)
 const loadItems = async () => {
   const res = await postJSON("/api/getList", { family_code: familyCode });
 
-  const cloned = (res.items || []).map((x) => ({
+   const cloned = (res.items || []).map((x: any) => ({
     ...x,
     is_checked: x.is_checked === true || x.is_checked === "true",
     store_id: x.store_id ? String(x.store_id) : null,
