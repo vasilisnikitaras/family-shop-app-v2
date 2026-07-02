@@ -74,10 +74,11 @@ const loadItems = async () => {
   const loadStores = async () => {
     const res = await postJSON("/api/getStores", { family_code: familyCode });
 
-    const cloned = res.stores.map((x) => ({
-      ...x,
-      id: String(x.id),
-    }));
+    const cloned = res.stores.map((x: any) => ({
+  ...x,
+  id: String(x.id),
+}));
+
 
     setStores(cloned);
   };
