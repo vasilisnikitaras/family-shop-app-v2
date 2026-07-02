@@ -23,7 +23,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
 
       <body>
-        <div className="container">
+        {/* SAFE WRAPPER — δεν σπάει το login */}
+        <div className="app-wrapper">
           {children}
         </div>
 

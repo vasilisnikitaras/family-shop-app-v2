@@ -32,12 +32,9 @@ export async function POST(request: Request) {
 
     const family_id = family[0].id;
 
-    // ⭐ FIX: store_id must be number or null
+    // ⭐ FIX: store_id must stay UUID (string) or null
     const fixedStoreId =
-  store_id === "" || store_id === undefined || store_id === null
-    ? null
-    : String(store_id);
-
+      !store_id || store_id === "" ? null : String(store_id);
 
     // ⭐ FIX: quantity must be number
     const fixedQty = Number(quantity);
@@ -50,6 +47,7 @@ export async function POST(request: Request) {
     `;
 
     return Response.json({ success: true, item: result[0] });
+
   } catch (error) {
     console.error("🔥 ERROR ADDING ITEM:", error);
     return Response.json(

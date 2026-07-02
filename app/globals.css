@@ -1,240 +1,284 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* ============================
-   GLOBAL
-   ============================ */
-
-body {
+/* GLOBAL RESET */
+* {
   margin: 0;
   padding: 0;
-  font-family: sans-serif;
-  background: #f9f9f9;
-  color: #222;
+  box-sizing: border-box;
 }
 
+body {
+  font-family: system-ui, sans-serif;
+}
+
+/* DARK + LIGHT-DARK THEMES */
 .dark {
-  background: #0A2A43 !important;
-  color: #fff !important;
+  background-color: #0b0b0b;
+  color: #f5f5f5;
 }
 
-.container,
-.max-w-xl,
-.max-w-sm,
-.card {
-  max-width: 480px !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
+.light-dark {
+  background-color: #f3f4f6;
+  color: #1a1a1a;
 }
 
-/* ============================
-   LOGIN PAGE CENTER
-   ============================ */
-
-.min-h-screen.flex.items-center.justify-center {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 20px !important;
+/* INPUTS */
+.input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #dcdcdc;
+  background: white;
+  color: #1a1a1a;
 }
 
-.card.max-w-sm.w-full {
-  max-width: 380px !important;
-  width: 100% !important;
-  padding: 24px !important;
-  border-radius: 14px !important;
+.dark .input {
+  background: #1a1a1a;
+  border-color: #2a2a2a;
+  color: #f5f5f5;
 }
 
-/* ============================
-   INPUTS
-   ============================ */
-
-input,
-select,
-textarea {
-  width: 100% !important;
-  padding: 12px !important;
-  font-size: 16px !important;
-  border-radius: 10px !important;
-  border: 1px solid #ccc !important;
-  background: #fff !important;
-  color: #222 !important;
+.light-dark .input {
+  background: #ffffff;
+  border-color: #dcdcdc;
+  color: #1a1a1a;
 }
 
-.dark input,
-.dark select,
-.dark textarea {
-  background: #1f3b5a !important;
-  border-color: #345 !important;
-  color: #fff !important;
+/* SELECT */
+.select {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #dcdcdc;
+  background: white;
+  color: #1a1a1a;
 }
 
-/* ============================
-   BUTTONS
-   ============================ */
+.dark .select {
+  background: #1a1a1a;
+  border-color: #2a2a2a;
+  color: #f5f5f5;
+}
 
-button,
+.light-dark .select {
+  background: #ffffff;
+  border-color: #dcdcdc;
+  color: #1a1a1a;
+}
+
+/* BUTTONS */
 .btn {
-  width: 100% !important;
-  padding: 12px !important;
-  font-size: 15px !important;
-  border-radius: 10px !important;
-  margin-top: 8px !important;
-  background: #e6e6e6 !important;
-  color: #222 !important;
-  border: none !important;
-}
-
-.dark button,
-.dark .btn {
-  background: #1f3b5a !important;
-  color: #fff !important;
-}
-
-.btn-green {
-  background: #2ecc71 !important;
-  color: #fff !important;
-}
-
-.btn-primary {
-  background: #3498db !important;
-  color: #fff !important;
-}
-
-.btn-danger {
-  background: #e74c3c !important;
-  color: #fff !important;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: 0.2s;
 }
 
 .btn-purple {
-  background: #7c3aed !important;
-  color: #fff !important;
+  background: #7c3aed;
+  color: white;
 }
 
-/* ============================
-   ADD PRODUCT GRID
-   ============================ */
-
-.grid.grid-cols-3 {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr 1fr !important;
-  gap: 10px !important;
-  align-items: center !important;
+.btn-purple:hover {
+  background: #6d28d9;
 }
 
-.input-qty {
-  width: 100% !important;
+.btn-light-purple {
+  background: #ede9fe;
+  color: #5b21b6;
 }
 
-/* ============================
-   ITEM CARD
-   ============================ */
-
-li.card {
-  background: #fff !important;
-  border: 1px solid #ddd !important;
-  border-radius: 12px !important;
-  padding: 14px !important;
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
+.btn-danger {
+  background: #dc2626;
+  color: white;
 }
 
-.dark li.card {
-  background: #123456 !important;
-  border-color: #1f3b5a !important;
+.btn-danger:hover {
+  background: #b91c1c;
 }
 
-li.card button {
-  width: auto !important;
-  padding: 6px 10px !important;
-  font-size: 13px !important;
-  border-radius: 6px !important;
+.btn-green {
+  background: #16a34a;
+  color: white;
 }
 
-/* ============================
-   STORE LABEL
-   ============================ */
+.btn-green:hover {
+  background: #15803d;
+}
 
+.btn-primary {
+  background: #2563eb;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
+}
+
+/* CARD */
+.card {
+  padding: 14px;
+  border-radius: 12px;
+  background: white;
+  border: 1px solid #e5e7eb;
+}
+
+.dark .card {
+  background: #1a1a1a;
+  border-color: #333;
+}
+
+/* STORE LABEL */
 .store-label {
   opacity: 0.7;
 }
 
-.dark .store-label {
-  color: #e9d5ff !important;
+/* INPUT QTY */
+.input-qty {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #dcdcdc;
+  background: white;
+  color: #1a1a1a;
+  text-align: center;
 }
 
-/* ============================
-   MODAL
-   ============================ */
+.dark .input-qty {
+  background: #1a1a1a;
+  border-color: #2a2a2a;
+  color: #f5f5f5;
+}
 
+/* MODAL */
 .modal-bg {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+/* ============================
+   MOBILE OPTIMIZATION (FULL)
+   ============================ */
+
+@media (max-width: 480px) {
+
+  /* MAIN CONTAINER */
+  .page-container {
+    padding: 12px !important;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 420px;
+  }
+
+  /* CARDS */
+  .card {
+    padding: 12px !important;
+    border-radius: 12px !important;
+  }
+
+  /* INPUTS */
+  .input,
+  .select {
+    font-size: 14px !important;
+    padding: 10px !important;
+    border-radius: 8px !important;
+  }
+
+  .input-qty {
+    width: 100%;
+    font-size: 14px !important;
+    padding: 8px !important;
+  }
+
+  /* BUTTONS */
+  .btn {
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+    border-radius: 8px !important;
+  }
+
+  .btn-danger,
+  .btn-primary,
+  .btn-green,
+  .btn-purple,
+  .btn-light-purple {
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+  }
+
+  /* HEADER */
+  .header-title {
+    font-size: 22px !important;
+  }
+
+  .header-subtitle {
+    font-size: 11px !important;
+  }
+
+  /* SECTION TITLES */
+  .section-title {
+    font-size: 18px !important;
+  }
+
+  /* LIST ITEMS */
+  .list-item {
+    padding: 12px !important;
+  }
+
+  .list-item span {
+    font-size: 14px !important;
+  }
+
+  .store-label {
+    font-size: 11px !important;
+  }
+
+  /* GRID FIX */
+  .grid {
+    gap: 6px !important;
+  }
+
+  .grid-cols-3 {
+    grid-template-columns: 1fr 1fr 1fr !important;
+  }
+
+  /* MODAL */
+  .modal-bg {
+    padding: 20px !important;
+  }
+
+  .modal-content {
+    max-width: 360px !important;
+    width: 100% !important;
+    padding: 16px !important;
+  }
+
+  /* FOOTER */
+  footer {
+    font-size: 9px !important;
+    padding-bottom: 20px !important;
+  }
+}
+@media (max-width: 480px) {
+  .grid-cols-3 {
+    grid-template-columns: 1fr !important;
+  }
+}
+footer {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  z-index: 50;
+  align-items: center;
+  text-align: center !important;
 }
-
-.modal-box {
-  background: #fff !important;
-  padding: 20px !important;
-  border-radius: 14px !important;
-  width: 320px !important;
-}
-
-.dark .modal-box {
-  background: #2f3e55 !important;
-  color: #fff !important;
-}
-/* ============================
-   MOBILE FIX — LANGUAGE SELECT
-   ============================ */
-
 select {
-  width: 100% !important;
-  min-width: 120px !important;
-  padding: 12px !important;
-  font-size: 16px !important;
-  border-radius: 10px !important;
+  position: relative;
+  z-index: 9999 !important;
+}
+.card {
+  overflow: visible !important;
 }
 
-/* ============================
-   MOBILE FIX — ADD PRODUCT GRID
-   ============================ */
 
-.grid.grid-cols-3 {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr 1fr !important;
-  gap: 12px !important;
-  align-items: center !important;
-}
-
-/* ============================
-   MOBILE FIX — LOGIN CENTER
-   ============================ */
-
-.min-h-screen.flex.items-center.justify-center {
-  padding: 20px !important;
-}
-
-.card.max-w-sm.w-full {
-  max-width: 380px !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-}
-
-/* ============================
-   MOBILE FIX — INPUTS FULL WIDTH
-   ============================ */
-
-input,
-select,
-textarea {
-  width: 100% !important;
-  max-width: 100% !important;
-  display: block !important;
+.checked-item {
+  background-color: #d1fae5; /* green-100 */
+  text-decoration: line-through;
+  color: #065f46; /* green-900 */
 }

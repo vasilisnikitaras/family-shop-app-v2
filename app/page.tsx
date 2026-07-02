@@ -1,118 +1,110 @@
 "use client";
 
+import React from "react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "@/lib/useTranslation";
-
-type Item = {
-  id: string;
-  name: string;
-  quantity: number;
-  store_id: string | null;
-  is_checked: boolean;
-};
-
-type Store = {
-  id: string;
-  name: string;
-};
 
 export default function Page() {
   const { t, lang, setLang } = useTranslation();
 
+  // --------------------------------------
+  // STATES
+  // --------------------------------------
   const [familyCode, setFamilyCode] = useState<string | null>(null);
   const [loginCode, setLoginCode] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
 
-  const [items, setItems] = useState<Item[]>([]);
-  const [stores, setStores] = useState<Store[]>([]);
-  const [dark, setDark] = useState(false);
+  const [items, setItems] = useState([]);
+  const [stores, setStores] = useState([]);
+
+  const [theme, setTheme] = useState("dark");
+
+  const [newStoreName, setNewStoreName] = useState("");
+  const [newStoreSelected, setNewStoreSelected] = useState("");
 
   const [newItemName, setNewItemName] = useState("");
   const [newItemQty, setNewItemQty] = useState("1");
   const [newItemStore, setNewItemStore] = useState("");
 
-  const [newStoreName, setNewStoreName] = useState("");
   const [storeModal, setStoreModal] = useState(false);
 
-  // DARK MODE
-  useEffect(() => {
-    if (dark) document.body.classList.add("dark");
-    else document.body.classList.remove("dark");
-  }, [dark]);
+  const themeClass =
+    theme === "dark"
+      ? "bg-[#0b0b0b] text-[#f5f5f5]"
+      : "bg-[#f3f4f6] text-[#1a1a1a]";
 
-  // API helper
+  // --------------------------------------
+  // API POST
+  // --------------------------------------
   const postJSON = async (url: string, body: any) => {
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error("🔥 API ERROR:", errorText);
+      return { success: false, error: errorText };
+    }
+
     return res.json();
   };
 
-  // Load session
-  useEffect(() => {
-    const code = localStorage.getItem("family_code");
-    const pass = localStorage.getItem("family_password");
+  // --------------------------------------
+  // FUNCTIONS (CORRECT ORDER)
+  // --------------------------------------
 
-    if (code && pass) {
-      setFamilyCode(code);
-      setLoginPassword(pass);
-    }
-  }, []);
+ // LOAD ITEMS (FIXED)
+// LOAD ITEMS (FIXED)
+const loadItems = async () => {
+  const res = await postJSON("/api/getList", { family_code: familyCode });
 
-  // Load items + stores
-  useEffect(() => {
-    if (!familyCode) return;
-    (async () => {
-      await loadItems();
-      await loadStores();
-    })();
-  }, [familyCode]);
+  const cloned = (res.items || []).map((x) => ({
+    ...x,
+    is_checked: x.is_checked === true || x.is_checked === "true",
+    store_id: x.store_id ? String(x.store_id) : null,
+  }));
 
-  // ⭐ FIXED loadItems
-  const loadItems = async () => {
-    const res = await postJSON("/api/getList", { family_code: familyCode });
+  setItems(cloned);
+};
 
-    const safeItems: Item[] = (res.items || []).map((i: any) => ({
-      id: String(i.id), // ⭐ FIXED — ποτέ ξανά NaN
-      name: i.name,
-      quantity: i.quantity ? Number(i.quantity) : 1,
-      store_id: i.store_id ? String(i.store_id) : null,
-      is_checked: Boolean(i.is_checked),
-    }));
 
-    setItems(safeItems);
-  };
-
-  // ⭐ FIXED loadStores
+  // LOAD STORES
   const loadStores = async () => {
     const res = await postJSON("/api/getStores", { family_code: familyCode });
-    const safeStores: Store[] = (res.stores || []).map((s: any) => ({
-      id: String(s.id),
-      name: s.name,
+
+    const cloned = res.stores.map((x) => ({
+      ...x,
+      id: String(x.id),
     }));
-    setStores(safeStores);
+
+    setStores(cloned);
   };
 
   // LOGIN
   const handleLogin = async () => {
-    const res = await postJSON("/api/loginFamily", {
-      family_code: loginCode,
-      family_password: loginPassword,
-    });
+  const res = await postJSON("/api/loginFamily", {
+    family_code: loginCode,
+    family_password: loginPassword,
+  });
 
-    if (!res.success) {
-      alert(res.message);
-      return;
-    }
+  if (!res.success) {
+    alert(res.message);
+    return;
+  }
 
-    localStorage.setItem("family_code", loginCode);
-    localStorage.setItem("family_password", loginPassword);
+  localStorage.setItem("family_code", loginCode);
+  localStorage.setItem("family_password", loginPassword);
+  setFamilyCode(loginCode);
 
-    setFamilyCode(loginCode);
-  };
+  // ⭐ ΕΔΩ ΠΑΕΙ — FRONTEND FIX
+  loadItems();
+  loadStores();
+};
 
+  // LOGOUT
   const logoutFamily = () => {
     localStorage.removeItem("family_code");
     localStorage.removeItem("family_password");
@@ -124,17 +116,26 @@ export default function Page() {
   // ADD STORE
   const addStore = async () => {
     if (!newStoreName) return;
-
     const res = await postJSON("/api/addStore", {
       name: newStoreName,
       family_code: familyCode,
     });
-
     if (res.success) {
       setNewStoreName("");
-      await loadStores();
-    } else {
-      alert(res.message || "Error adding store");
+      loadStores();
+    }
+  };
+
+  // DELETE STORE
+  const deleteStore = async (storeId: string) => {
+    const res = await postJSON("/api/deleteStore", {
+      store_id: storeId,
+      family_code: familyCode,
+    });
+
+    if (res.success) {
+      setStores((prev) => prev.filter((s) => s.id !== storeId));
+      setItems((prev) => prev.filter((i) => i.store_id !== storeId));
     }
   };
 
@@ -142,12 +143,10 @@ export default function Page() {
   const addItem = async () => {
     if (!newItemName) return;
 
-    const storeValue = newItemStore === "" ? null : String(newItemStore);
-
     const res = await postJSON("/api/addItem", {
       name: newItemName,
       quantity: Number(newItemQty || "1"),
-      store_id: storeValue,
+      store_id: newItemStore === "" ? null : newItemStore,
       family_code: familyCode,
     });
 
@@ -155,92 +154,107 @@ export default function Page() {
       setNewItemName("");
       setNewItemQty("1");
       setNewItemStore("");
-      await loadItems();
-    } else {
-      alert(res.error || "Error adding item");
+      loadItems();
     }
   };
 
-  // DELETE STORE
-  const deleteStore = async (id: string) => {
-    const ok = window.confirm("Delete store?");
-    if (!ok) return;
+  // GOT IT (INSTANT UI UPDATE)
+const toggleGotIt = async (item: any) => {
+  if (!familyCode) return;
 
-    const res = await postJSON("/api/deleteStore", {
-      id,
-      family_code: familyCode,
-    });
+  // 1. Instant UI update
+  setItems((prev) =>
+    prev.map((x) =>
+      x.id === item.id
+        ? { ...x, is_checked: !x.is_checked }
+        : x
+    )
+  );
 
-    if (res.success) await loadStores();
-  };
+  // 2. Update database
+  await postJSON("/api/toggleGotIt", {
+    id: item.id,
+    family_code: familyCode,
+  });
+};
 
-  // ⭐ FIXED GOT IT
-  const toggleGotIt = async (item: Item) => {
-    const res = await postJSON("/api/toggleGotIt", {
-      id: item.id, // ⭐ UUID string — σωστό
-      family_code: familyCode,
-    });
 
-    if (res.success) await loadItems();
-    else alert(res.error || "Error toggling item");
-  };
 
   // EDIT ITEM
-  const editItem = async (item: Item) => {
+  const editItem = async (item: any) => {
     const newName = prompt("New name:", item.name);
     if (!newName) return;
-
     const res = await postJSON("/api/editItem", {
       id: item.id,
       name: newName,
       family_code: familyCode,
     });
-
-    if (res.success) await loadItems();
+    if (res.success) loadItems();
   };
 
   // DELETE ITEM
-  const deleteItem = async (item: Item) => {
-    const ok = window.confirm(`Delete "${item.name}"?`);
-    if (!ok) return;
-
+  const deleteItem = async (item: any) => {
+    if (!confirm(`Delete "${item.name}"?`)) return;
     const res = await postJSON("/api/deleteItem", {
       id: item.id,
       family_code: familyCode,
     });
-
-    if (res.success) await loadItems();
+    if (res.success) loadItems();
   };
 
-  // LOGIN SCREEN
+  // --------------------------------------
+  // useEffect (AFTER FUNCTIONS)
+  // --------------------------------------
+  useEffect(() => {
+  const code = localStorage.getItem("family_code");
+  if (code) {
+    setFamilyCode(code);
+  }
+}, []);
+
+
+  useEffect(() => {
+    document.body.classList.remove("dark", "light-dark");
+    document.body.classList.add(theme);
+  }, [theme]);
+
+  useEffect(() => {
+    if (!familyCode) return;
+    loadItems();
+    loadStores();
+  }, [familyCode]);
+
+  // --------------------------------------
+  // RETURN JSX
+  // --------------------------------------
   if (!familyCode) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="card max-w-sm w-full space-y-4 p-6">
-          <h1 className="text-xl font-bold text-center text-purple-700 dark:text-purple-300">
-            Enter Family Code
-          </h1>
+      <div
+        className={`min-h-screen px-2 py-4 flex justify-center items-center ${themeClass}`}
+      >
+        <div className="w-full max-w-xs mx-auto space-y-4 p-6 rounded-xl shadow-xl card">
+          <h1 className="text-xl font-bold text-center">Enter Family Code</h1>
 
           <input
-            className="input dark:input"
+            className="input"
             placeholder="Family code..."
             value={loginCode}
             onChange={(e) => setLoginCode(e.target.value)}
           />
 
-          <h1 className="text-xl font-bold text-center text-purple-700 dark:text-purple-300 mt-4">
+          <h1 className="text-xl font-bold text-center mt-4">
             Enter Password
           </h1>
 
           <input
             type="password"
-            className="input dark:input"
+            className="input"
             placeholder="Password..."
             value={loginPassword}
             onChange={(e) => setLoginPassword(e.target.value)}
           />
 
-          <button onClick={handleLogin} className="btn btn-purple w-full mt-4">
+          <button onClick={handleLogin} className="btn btn-purple w-full">
             Join Family
           </button>
         </div>
@@ -248,18 +262,18 @@ export default function Page() {
     );
   }
 
-  // MAIN UI
   return (
-    <div className="min-h-screen px-4 py-6">
-      <div className="max-w-xl mx-auto space-y-8">
-
+    <div
+      className={`page-container min-h-screen flex justify-center items-start ${themeClass}`}
+    >
+      <div className="w-full max-w-xl space-y-8">
         {/* HEADER */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-extrabold text-purple-700 dark:text-purple-300">
+            <h1 className="header-title text-3xl font-extrabold text-purple-700 dark:text-purple-300">
               {t.title}
             </h1>
-            <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">
+            <p className="header-subtitle text-xs text-gray-500 dark:text-gray-300 mt-1">
               Family: {familyCode}
             </p>
           </div>
@@ -268,7 +282,7 @@ export default function Page() {
             <select
               value={lang}
               onChange={(e) => setLang(e.target.value)}
-              className="select dark:select"
+              className="select"
             >
               <option value="en">EN</option>
               <option value="el">EL</option>
@@ -282,8 +296,13 @@ export default function Page() {
               <option value="zh">ZH</option>
             </select>
 
-            <button onClick={() => setDark(!dark)} className="btn btn-purple">
-              {dark ? "Light" : "Dark"}
+            <button
+              onClick={() =>
+                setTheme(theme === "dark" ? "light-dark" : "dark")
+              }
+              className="btn btn-purple"
+            >
+              {theme === "dark" ? "Light-Dark" : "Dark"}
             </button>
 
             <button onClick={logoutFamily} className="btn btn-danger">
@@ -294,9 +313,9 @@ export default function Page() {
 
         {/* ADD STORE */}
         <div className="card space-y-3">
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <input
-              className="input dark:input"
+              className="input"
               placeholder={t.new_store}
               value={newStoreName}
               onChange={(e) => setNewStoreName(e.target.value)}
@@ -314,115 +333,46 @@ export default function Page() {
           </button>
         </div>
 
-        {/* ADD PRODUCT */}
-        <div className="card space-y-3">
+        {/* ADD STORE FULL */}
+        <div className="card space-y-3 overflow-visible">
           <h2 className="section-title text-purple-700 dark:text-purple-300">
-            {t.add_product}
+            {t.add_store}
           </h2>
 
           <div className="flex flex-col gap-3">
             <input
-              className="input dark:input"
-              placeholder={t.add_product}
-              value={newItemName}
-              onChange={(e) => setNewItemName(e.target.value)}
+              className="input"
+              placeholder={t.new_store_name}
+              value={newStoreName}
+              onChange={(e) => setNewStoreName(e.target.value)}
             />
-            
-             <div className="grid grid-cols-3 gap-2 items-center">
 
-
-              <input
-                type="number"
-                min={1}
-                className="input-qty"
-                value={newItemQty}
-                onChange={(e) => setNewItemQty(e.target.value)}
-              />
-
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center overflow-visible relative">
               <select
-                className="select dark:select"
-                value={newItemStore}
-                onChange={(e) => setNewItemStore(e.target.value)}
+                className="select z-50"
+                value={String(newStoreSelected)}
+                onChange={(e) => setNewStoreSelected(e.target.value)}
               >
                 <option value="">{t.select_store}</option>
                 {stores.map((s) => (
-                  <option key={s.id} value={s.id}>
+                  <option key={s.id} value={String(s.id)}>
                     {s.name}
                   </option>
                 ))}
               </select>
 
-              <button onClick={addItem} className="btn btn-purple">
-                {t.add}
+              <button onClick={addStore} className="btn btn-purple">
+                {t.add_store}
               </button>
             </div>
           </div>
         </div>
 
-        {/* ITEMS */}
-        <div className="space-y-3">
-          <h2 className="section-title text-purple-700 dark:text-purple-300">
-            List
-          </h2>
-
-          <ul className="space-y-3">
-            {items.map((i) => {
-              const storeName = stores.find(
-                (s) => String(s.id) === String(i.store_id)
-              )?.name;
-
-              return (
-                <li
-                  key={i.id}
-                  className={`card flex items-center justify-between transition-all ${
-                    i.is_checked
-                      ? "bg-green-100 dark:bg-green-900 text-green-900 dark:text-green-200 line-through"
-                      : ""
-                  }`}
-                >
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium">
-                      {i.name} (x{i.quantity})
-                    </span>
-
-                    {storeName && (
-                      <span className="store-label text-xs mt-1">
-                        {storeName}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => toggleGotIt(i)}
-                      className="btn btn-green"
-                    >
-                      {t.got_it}
-                    </button>
-                    <button
-                      onClick={() => editItem(i)}
-                      className="btn btn-primary"
-                    >
-                      {t.edit}
-                    </button>
-                    <button
-                      onClick={() => deleteItem(i)}
-                      className="btn btn-danger"
-                    >
-                      {t.delete}
-                    </button>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-
         {/* STORE MODAL */}
         {storeModal && (
-          <div className="modal-bg">
-            <div className="modal-box">
-              <h2 className="section-title text-center text-purple-700 dark:text-purple-300">
+          <div className="modal-bg fixed inset-0 z-[9998] flex items-center justify-center">
+            <div className="modal-content bg-white dark:bg-[#1a1a1a] p-4 rounded-lg z-[9999] w-full max-w-sm">
+              <h2 className="section-title text-purple-700 dark:text-purple-300 text-center mb-3">
                 {t.manage_stores}
               </h2>
 
@@ -452,6 +402,135 @@ export default function Page() {
             </div>
           </div>
         )}
+
+        {/* ADD PRODUCT */}
+        <div className="card space-y-3">
+          <h2 className="section-title text-purple-700 dark:text-purple-300">
+            {t.add_product}
+          </h2>
+
+          <div className="flex flex-col gap-3">
+            <input
+              className="input"
+              placeholder={t.add_product}
+              value={newItemName}
+              onChange={(e) => setNewItemName(e.target.value)}
+            />
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center overflow-visible relative">
+              <input
+                type="number"
+                min={1}
+                className="input-qty"
+                value={newItemQty}
+                onChange={(e) => setNewItemQty(e.target.value)}
+              />
+
+              <select
+                className="select z-50"
+                value={newItemStore}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setNewItemStore(val);
+                }}
+              >
+                <option value="">{t.select_store}</option>
+                {stores.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+
+              <button onClick={addItem} className="btn btn-purple">
+                {t.add}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* ITEMS */}
+<div className="space-y-3">
+  <h2 className="section-title text-purple-700 dark:text-purple-300">
+    List
+  </h2>
+
+  <ul className="space-y-3">
+    {items.map((i) => {
+      
+      console.log("🔥 RENDER ITEM:", i);
+
+      const storeName = stores.find(
+        (s) => String(s.id) === String(i.store_id)
+      )?.name;
+
+      return (
+        <li
+          key={i.id}
+          className={`card list-item flex items-center justify-between transition-all pointer-events-auto ${
+            i.is_checked && "bg-green-100 dark:bg-green-900"
+          }`}
+        >
+          <div className="flex flex-col">
+
+            {/* ⭐⭐ ΕΔΩ ΜΠΑΙΝΕΙ ΤΟ CHECK ✔⭐⭐ */}
+            <div className="flex items-center gap-2">
+              {i.is_checked && (
+                <span className="text-green-600 font-bold">✔</span>
+              )}
+
+              <span
+                className={`text-sm font-medium ${
+                  i.is_checked
+                    ? "line-through text-green-900 dark:text-green-200"
+                    : ""
+                }`}
+              >
+                {i.name} (x{i.quantity})
+              </span>
+            </div>
+            {/* ⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐ */}
+
+            {storeName && (
+              <span
+                className={`store-label text-xs mt-1 ${
+                  i.is_checked ? "text-green-700 dark:text-green-300" : ""
+                }`}
+              >
+                {storeName}
+              </span>
+            )}
+          </div>
+
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => toggleGotIt(i)}
+              className="btn btn-green"
+            >
+              {t.got_it}
+            </button>
+
+            <button
+              onClick={() => editItem(i)}
+              className="btn btn-primary"
+            >
+              {t.edit}
+            </button>
+
+            <button
+              onClick={() => deleteItem(i)}
+              className="btn btn-danger"
+            >
+              {t.delete}
+            </button>
+          </div>
+        </li>
+      );
+    })}
+  </ul>
+</div>
+
 
         {/* FOOTER */}
         <footer className="pt-6 text-center space-y-1 text-[10px] text-gray-500 dark:text-gray-300">
