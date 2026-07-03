@@ -127,18 +127,23 @@ export default function Page() {
 
   // DELETE STORE
   const deleteStore = async (storeId: string) => {
-    const res = await postJSON("/api/deleteStore", {
-      store_id: storeId,
-      family_code: familyCode,
-    });
+  const res = await postJSON("/api/deleteStore", {
+    store_id: storeId,
+    family_code: familyCode,
+  });
 
-    if (res.success) {
-      setStores((prev: any[]) => prev.filter((s: any) => s.id !== storeId));
-      setItems((prev: any[]) =>
-        prev.filter((i: any) => i.store_id !== storeId)
-      );
-    }
-  };
+  if (res.success) {
+    // 1️⃣ Καθαρίζει το UI state
+    setStores((prev: any[]) => prev.filter((s: any) => s.id !== storeId));
+    setItems((prev: any[]) =>
+      prev.filter((i: any) => i.store_id !== storeId)
+    );
+
+    // 2️⃣ ⭐ ΞΑΝΑΦΕΡΝΕΙ ΤΑ ΣΩΣΤΑ ΑΠΟ ΤΗ ΒΑΣΗ
+    loadStores();
+    loadItems();
+  }
+};
 
   // ADD ITEM
   const addItem = async () => {
