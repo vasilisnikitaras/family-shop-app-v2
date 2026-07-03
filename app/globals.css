@@ -270,7 +270,7 @@ footer {
 }
 select {
   position: relative;
-  z-index: 9999 !important;
+  z-index: 10 !important;
 }
 .card {
   overflow: visible !important;
