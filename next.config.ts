@@ -6,6 +6,9 @@ const nextConfig = {
     },
   },
 
+  // 🔥 FIX για το Vercel worker crash
+  turbopack: {},
+
   webpack: (config: any) => {
     return config;
   },
