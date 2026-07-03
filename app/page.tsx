@@ -127,10 +127,11 @@ export default function Page() {
 
   // DELETE STORE
   const deleteStore = async (storeId: string) => {
-  const res = await postJSON("/api/deleteStore", {
-    store_id: storeId,
-    family_code: familyCode,
+   const res = await postJSON("/api/deleteStore", {
+   id: storeId,
+   family_code: familyCode,
   });
+
 
   if (res.success) {
     // 1️⃣ Καθαρίζει το UI state
