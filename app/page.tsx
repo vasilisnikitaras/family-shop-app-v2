@@ -32,7 +32,7 @@ export default function Page() {
   const [newItemQty, setNewItemQty] = useState("1");
   const [newItemStore, setNewItemStore] = useState("");
 
-  const [viewMode, setViewMode] = useState<"list" | "store">("list");
+  const [viewMode, setViewMode] = useState<"list" | "store" | "manage">("list");
 
 // ⭐ FIX: ΤΩΡΑ ΕΠΙΤΡΕΠΕΤΑΙ
 useEffect(() => {
