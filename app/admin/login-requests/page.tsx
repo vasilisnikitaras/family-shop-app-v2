@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { CheckCircle, XCircle, Clock, Search } from "lucide-react";
 
 export default function AdminLoginRequests() {
-  const [requests, setRequests] = useState([]);
+  const [requests, setRequests] = useState<any[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
