@@ -587,7 +587,7 @@ useEffect(() => {
           </button>
         </div>
 
-        //console.log("ADD STORE RENDERS");//
+        
 
 
         {/* ADD STORE */}
