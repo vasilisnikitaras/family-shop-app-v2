@@ -587,7 +587,8 @@ useEffect(() => {
           </button>
         </div>
 
-        {console.log("ADD STORE RENDERS")}
+        console.log("ADD STORE RENDERS");
+
 
         {/* ADD STORE */}
         <div className="card space-y-3">
