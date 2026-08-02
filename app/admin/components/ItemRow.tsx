@@ -6,7 +6,13 @@ export default function ItemRow({
   onToggleGotIt,
   onEdit,
   onDelete,
+}: {
+  item: any;
+  onToggleGotIt: any;
+  onEdit: any;
+  onDelete: any;
 }) {
+
   return (
     <div
       className={`flex items-center justify-between px-3 py-2 rounded-lg mb-2 transition-all ${
