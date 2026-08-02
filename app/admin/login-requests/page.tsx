@@ -17,23 +17,24 @@ export default function AdminLoginRequests() {
     setLoading(false);
   }
 
-  async function approve(id) {
-    await fetch("/api/admin/approveLogin", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
-    });
-    loadRequests();
-  }
+  async function approve(id: any) {
+  await fetch("/api/admin/approveLogin", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id }),
+  });
+  loadRequests();
+}
 
-  async function deny(id) {
-    await fetch("/api/admin/denyLogin", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
-    });
-    loadRequests();
-  }
+async function deny(id: any) {
+  await fetch("/api/admin/denyLogin", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id }),
+  });
+  loadRequests();
+}
+
 
   useEffect(() => {
     loadRequests();
