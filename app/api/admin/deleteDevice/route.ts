@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { neon } from "@neondatabase/serverless";
+import { sql } from "@vercel/postgres";
 
 export async function POST(req: Request) {
   try {
