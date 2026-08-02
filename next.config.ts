@@ -9,6 +9,9 @@ const nextConfig = {
   // 🔥 FIX για το Vercel worker crash
   turbopack: {},
 
+  // 🔥 Επιτρέπει το κινητό σου να φορτώσει τα dev scripts
+  allowedDevOrigins: ['192.168.1.8'],
+
   webpack: (config: any) => {
     return config;
   },

@@ -1,3 +1,4 @@
+import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 
 export async function POST(request: Request) {
@@ -5,39 +6,38 @@ export async function POST(request: Request) {
     const { family_code } = await request.json();
 
     if (!family_code) {
-      return Response.json({ items: [] });
+      return NextResponse.json({ items: [] });
     }
 
-    // Find family_id
+    // Βρες το family_id
     const family = await sql`
       SELECT id FROM families WHERE family_code = ${family_code}
     `;
-
     if (family.length === 0) {
-      return Response.json({ items: [] });
+      return NextResponse.json({ items: [] });
     }
 
     const family_id = family[0].id;
 
-    // ⭐ CRITICAL FIX: return correct item fields
+    // ΠΡΕΠΕΙ ΝΑ ΕΠΙΣΤΡΕΨΟΥΜΕ added_by !!!
     const items = await sql`
       SELECT 
         id,
         name,
         quantity,
-        COALESCE(is_checked, FALSE) AS is_checked,
-        store_id::text
+        store_id,
+        is_checked,
+        added_by
       FROM items_v2
       WHERE family_id = ${family_id}
       ORDER BY id DESC
     `;
 
-    console.log("🔥 ITEMS FROM DB:", items); // ⭐ ΒΑΛΕ ΤΟ ΕΔΩ
+    return NextResponse.json({ items });
 
-    return Response.json({ items });
   } catch (error) {
-    console.error("🔥 ERROR FETCHING LIST:", error);
-    return Response.json(
+    console.error("Error fetching list:", error);
+    return NextResponse.json(
       { error: "Failed to fetch list" },
       { status: 500 }
     );

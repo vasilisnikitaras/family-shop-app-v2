@@ -16,6 +16,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head>
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+        />
+
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-startup-image" href="/splash.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -23,8 +28,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
 
       <body>
-        {/* SAFE WRAPPER — δεν σπάει το login */}
-        <div className="app-wrapper">
+        <div className="app-wrapper w-full max-w-none px-3">
           {children}
         </div>
 

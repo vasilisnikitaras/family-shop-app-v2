@@ -1,20 +1,29 @@
+import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 
 export async function POST(request: Request) {
   try {
-    const { id, name, quantity } = await request.json();
+    const { id, name, family_code } = await request.json();
+
+    if (!id || !name || !family_code) {
+      return NextResponse.json(
+        { success: false, message: "Missing fields" },
+        { status: 400 }
+      );
+    }
 
     await sql`
       UPDATE items_v2
-      SET name = ${name}, quantity = ${quantity}
-      WHERE id = ${id}
+      SET name = ${name}
+      WHERE id = ${id} AND family_code = ${family_code}
     `;
 
-    return Response.json({ success: true });
+    return NextResponse.json({ success: true });
+
   } catch (error) {
     console.error("Error editing item:", error);
-    return Response.json(
-      { error: "Failed to edit item" },
+    return NextResponse.json(
+      { success: false, message: "Failed to edit item" },
       { status: 500 }
     );
   }

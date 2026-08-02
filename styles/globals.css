@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* GLOBAL RESET */
 * {
   margin: 0;
@@ -5,11 +9,17 @@
   box-sizing: border-box;
 }
 
-body {
+/* BASE BODY */
+html, body {
+  width: 100%;
+  min-height: 100%;
+  overflow-x: auto; /* ⭐ Απαραίτητο για admin tables */
   font-family: system-ui, sans-serif;
+  background-color: #FAF7FB;
+  color: #3A2E3F;
 }
 
-/* DARK + LIGHT-DARK THEMES */
+/* THEMES */
 .dark {
   background-color: #0b0b0b;
   color: #f5f5f5;
@@ -27,7 +37,7 @@ body {
   border-radius: 8px;
   border: 1px solid #dcdcdc;
   background: white;
-  color: #1a1a1a;
+  color: #3A2E3F;
 }
 
 .dark .input {
@@ -36,31 +46,19 @@ body {
   color: #f5f5f5;
 }
 
-.light-dark .input {
-  background: #ffffff;
-  border-color: #dcdcdc;
-  color: #1a1a1a;
-}
-
 /* SELECT */
 .select {
   padding: 10px;
   border-radius: 8px;
   border: 1px solid #dcdcdc;
   background: white;
-  color: #1a1a1a;
+  color: #3A2E3F;
 }
 
 .dark .select {
   background: #1a1a1a;
   border-color: #2a2a2a;
   color: #f5f5f5;
-}
-
-.light-dark .select {
-  background: #ffffff;
-  border-color: #dcdcdc;
-  color: #1a1a1a;
 }
 
 /* BUTTONS */
@@ -72,17 +70,17 @@ body {
 }
 
 .btn-purple {
-  background: #7c3aed;
-  color: white;
+  background: #C8A2C8;
+  color: #3A2E3F;
 }
 
 .btn-purple:hover {
-  background: #6d28d9;
+  background: #B48EB4;
 }
 
 .btn-light-purple {
-  background: #ede9fe;
-  color: #5b21b6;
+  background: #F7C6D0;
+  color: #3A2E3F;
 }
 
 .btn-danger {
@@ -112,12 +110,12 @@ body {
   background: #1d4ed8;
 }
 
-/* CARD */
+/* CARD — SAFE VERSION (ΔΕΝ ΠΕΙΡΑΖΕΙ ADMIN) */
 .card {
   padding: 14px;
   border-radius: 12px;
   background: white;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #E6D7EA;
 }
 
 .dark .card {
@@ -125,19 +123,14 @@ body {
   border-color: #333;
 }
 
-/* STORE LABEL */
-.store-label {
-  opacity: 0.7;
-}
-
-/* INPUT QTY */
+/* SAFE INPUT QTY */
 .input-qty {
   width: 100%;
   padding: 10px;
   border-radius: 8px;
   border: 1px solid #dcdcdc;
   background: white;
-  color: #1a1a1a;
+  color: #3A2E3F;
   text-align: center;
 }
 
@@ -147,138 +140,78 @@ body {
   color: #f5f5f5;
 }
 
-/* MODAL */
-.modal-bg {
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
+/* SAFE FOCUS */
+.input:focus,
+.input-qty:focus,
+.select:focus {
+  border-color: #C8A2C8;
+  box-shadow: 0 0 0 2px rgba(200,162,200,0.25);
 }
 
-/* ============================
-   MOBILE OPTIMIZATION (FULL)
-   ============================ */
-
+/* SAFE MOBILE FONT */
 @media (max-width: 480px) {
-
-  /* MAIN CONTAINER */
-  .page-container {
-    padding: 12px !important;
-    margin: 0 auto;
-    width: 100%;
-    max-width: 420px;
-  }
-
-  /* CARDS */
-  .card {
-    padding: 12px !important;
-    border-radius: 12px !important;
-  }
-
-  /* INPUTS */
-  .input,
-  .select {
-    font-size: 14px !important;
-    padding: 10px !important;
-    border-radius: 8px !important;
-  }
-
-  .input-qty {
-    width: 100%;
-    font-size: 14px !important;
-    padding: 8px !important;
-  }
-
-  /* BUTTONS */
-  .btn {
-    padding: 8px 12px !important;
-    font-size: 13px !important;
-    border-radius: 8px !important;
-  }
-
-  .btn-danger,
-  .btn-primary,
-  .btn-green,
-  .btn-purple,
-  .btn-light-purple {
-    padding: 8px 12px !important;
-    font-size: 13px !important;
-  }
-
-  /* HEADER */
-  .header-title {
-    font-size: 22px !important;
-  }
-
-  .header-subtitle {
-    font-size: 11px !important;
-  }
-
-  /* SECTION TITLES */
-  .section-title {
-    font-size: 18px !important;
-  }
-
-  /* LIST ITEMS */
-  .list-item {
-    padding: 12px !important;
-  }
-
-  .list-item span {
-    font-size: 14px !important;
-  }
-
-  .store-label {
-    font-size: 11px !important;
-  }
-
-  /* GRID FIX */
-  .grid {
-    gap: 6px !important;
-  }
-
-  .grid-cols-3 {
-    grid-template-columns: 1fr 1fr 1fr !important;
-  }
-
-  /* MODAL */
-  .modal-bg {
-    padding: 20px !important;
-  }
-
-  .modal-content {
-    max-width: 360px !important;
-    width: 100% !important;
-    padding: 16px !important;
-  }
-
-  /* FOOTER */
-  footer {
-    font-size: 9px !important;
-    padding-bottom: 20px !important;
+  body {
+    font-size: 14px;
   }
 }
-@media (max-width: 480px) {
-  .grid-cols-3 {
-    grid-template-columns: 1fr !important;
-  }
+
+/* SAFE AREA */
+:root {
+  --safe-top: env(safe-area-inset-top);
 }
-footer {
+
+.pt-safe {
+  padding-top: calc(var(--safe-top) + 12px);
+}
+
+
+.card {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+}
+
+.card.list-item {
+  display: flex;
+}
+
+
+.card.list-item {
+  display: flex !important;
   align-items: center;
-  text-align: center !important;
+  justify-content: space-between;
 }
-select {
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 9999;
+}
+
+.modal-card {
   position: relative;
-  z-index: 9999 !important;
+  z-index: 10000;
 }
-.card {
-  overflow: visible !important;
+
+.btn-light-purple {
+  z-index: 1;
 }
 
 
-.checked-item {
-  background-color: #d1fae5; /* green-100 */
-  text-decoration: line-through;
-  color: #065f46; /* green-900 */
+input, textarea {
+  font-size: 16px !important;
 }
+
+body {
+  -webkit-text-size-adjust: 100%;
+}
+
+:root {
+  --vh: 100%;
+}
+
+body {
+  height: calc(var(--vh) * 100);
+}
+
+

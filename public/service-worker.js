@@ -1,4 +1,5 @@
-const CACHE_NAME = "family-shop-lemon-cache-v1";
+const CACHE_NAME = "family-shop-lemon-cache-v2"; // άλλαξε το νούμερο
+
 const ASSETS = [
   "/",
   "/manifest.json",
@@ -28,7 +29,6 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  // ΜΗΝ κάνεις cache τα API (login, products κλπ)
   if (event.request.url.includes("/api/")) {
     return;
   }

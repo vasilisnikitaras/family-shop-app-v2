@@ -14,41 +14,75 @@ export async function POST(req: Request) {
       );
     }
 
-    // 1️⃣ Check if family exists
+    // 🔥 Βρίσκουμε την οικογένεια
     const existing = await sql`
       SELECT * FROM families WHERE family_code = ${family_code};
     `;
 
-    // 2️⃣ If exists → verify password
-    if (existing.length > 0) {
-      const fam = existing[0];
+    // 🔥 Αν ΔΕΝ υπάρχει → AUTO CREATE
+    if (existing.length === 0) {
+      const created = await sql`
+        INSERT INTO families (family_code, family_password)
+        VALUES (${family_code}, ${family_password})
+        RETURNING *;
+      `;
 
-      if (fam.family_password !== family_password) {
-        return NextResponse.json(
-          { success: false, message: "Wrong password" },
-          { status: 401 }
-        );
-      }
+      // 🔥 First login tracking για νέο family
+      const userAgent = req.headers.get("user-agent") || "Unknown Device";
+
+      await sql`
+        INSERT INTO first_logins (family_code, device)
+        VALUES (${family_code}, ${userAgent});
+      `;
 
       return NextResponse.json({
         success: true,
-        message: "Login successful",
-        family: fam,
+        message: "Family created automatically",
+        family: created[0],
       });
     }
 
-    // 3️⃣ If not exists → auto-create
-    const created = await sql`
-      INSERT INTO families (name, family_code, family_password)
-      VALUES ('Family', ${family_code}, ${family_password})
-      RETURNING *;
+    // 🔥 Αν υπάρχει → password check
+    const fam = existing[0];
+    const realPassword = fam.family_password;
+
+    if (!realPassword) {
+      return NextResponse.json(
+        { success: false, message: "Family has no password set" },
+        { status: 401 }
+      );
+    }
+
+    if (String(realPassword) !== String(family_password)) {
+      return NextResponse.json(
+        { success: false, message: "Wrong password" },
+        { status: 401 }
+      );
+    }
+
+    // 🔥 First login check (μόνο την πρώτη φορά)
+    const first = await sql`
+      SELECT * FROM first_logins
+      WHERE family_code = ${family_code}
+      LIMIT 1;
     `;
 
+    if (first.length === 0) {
+      const userAgent = req.headers.get("user-agent") || "Unknown Device";
+
+      await sql`
+        INSERT INTO first_logins (family_code, device)
+        VALUES (${family_code}, ${userAgent});
+      `;
+    }
+
+    // 🔥 LOGIN SUCCESS
     return NextResponse.json({
       success: true,
-      message: "Family created & logged in",
-      family: created[0],
+      message: "Login successful",
+      family: fam,
     });
+
   } catch (err) {
     console.error("❌ loginFamily error:", err);
     return NextResponse.json(
